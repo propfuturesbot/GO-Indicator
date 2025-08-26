@@ -271,7 +271,7 @@ class IndicatorManager {
         };
 
         const endpoint = this.getIndicatorEndpoint(type);
-        const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+        const response = await fetch(`${this.getApiBaseUrl()}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
