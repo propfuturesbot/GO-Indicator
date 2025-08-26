@@ -5,7 +5,8 @@ class IndicatorManager {
   constructor() {
     this.activeIndicators = new Map();
     this.indicatorSeries = new Map();
-    this.apiBaseUrl = 'http://localhost:8080/api';
+    // Use relative URL or same host as frontend to avoid CORS issues
+    this.apiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8080/api`;
   }
 
   // Add an indicator by calling the backend API
