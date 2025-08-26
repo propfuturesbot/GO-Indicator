@@ -1295,16 +1295,7 @@ const setupRealTimeConnection = async () => {
   }
 };
 
-// Keep all your existing functions for handleRealTimeBar, Renko, Heiken Ashi etc.
-// ... (include all the rest of your original chart.js code here)
-
-const handleRealTimeBar = (bar) => {
-  // Your existing handleRealTimeBar implementation
-  // ... keep all the existing code
-};
-
-// Include all other existing functions from your chart.js
-// ... (all the Renko, Heiken Ashi, chart management functions)
+// Additional chart management functions continue here...
 
 const main = async () => {
   console.log('=== Initializing Trading Platform ===');
