@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Platform Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+        .test-section { margin: 20px 0; padding: 15px; background: #333; border-radius: 5px; }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        button { padding: 8px 16px; margin: 5px; background: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .result { margin-top: 10px; padding: 10px; background: #222; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Trading Platform API Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button onclick="testHealth()">Test API Health</button>
+        <div id="health-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Available Strategies</h3>
+        <button onclick="testStrategies()">Get Strategies</button>
+        <div id="strategies-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Simple Moving Average (SMA)</h3>
+        <button onclick="testSMA()">Test SMA Calculation</button>
+        <div id="sma-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Bollinger Bands</h3>
+        <button onclick="testBollingerBands()">Test Bollinger Bands</button>
+        <div id="bb-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>5. RSI Indicator</h3>
+        <button onclick="testRSI()">Test RSI Calculation</button>
+        <div id="rsi-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>6. Full Trading Platform</h3>
+        <p>Open the main trading platform: 
+            <a href="http://localhost:3000/" target="_blank" style="color: #4CAF50;">
+                TradePro Platform
+            </a>
+        </p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        
+        // Sample market data for testing
+        const sampleData = [
+            {"time": 1692000000, "open": 19000, "high": 19100, "low": 18950, "close": 19050, "volume": 1000},
+            {"time": 1692003600, "open": 19050, "high": 19200, "low": 19000, "close": 19150, "volume": 1100},
+            {"time": 1692007200, "open": 19150, "high": 19300, "low": 19100, "close": 19250, "volume": 1200},
+            {"time": 1692010800, "open": 19250, "high": 19400, "low": 19200, "close": 19350, "volume": 1300},
+            {"time": 1692014400, "open": 19350, "high": 19500, "low": 19300, "close": 19450, "volume": 1400},
+            {"time": 1692018000, "open": 19450, "high": 19600, "low": 19400, "close": 19550, "volume": 1500},
+            {"time": 1692021600, "open": 19550, "high": 19700, "low": 19500, "close": 19650, "volume": 1600},
+            {"time": 1692025200, "open": 19650, "high": 19800, "low": 19600, "close": 19750, "volume": 1700},
+            {"time": 1692028800, "open": 19750, "high": 19900, "low": 19700, "close": 19850, "volume": 1800},
+            {"time": 1692032400, "open": 19850, "high": 20000, "low": 19800, "close": 19950, "volume": 1900},
+            {"time": 1692036000, "open": 19950, "high": 19900, "low": 19800, "close": 19850, "volume": 2000},
+            {"time": 1692039600, "open": 19850, "high": 19800, "low": 19700, "close": 19750, "volume": 2100},
+            {"time": 1692043200, "open": 19750, "high": 19700, "low": 19600, "close": 19650, "volume": 2200},
+            {"time": 1692046800, "open": 19650, "high": 19600, "low": 19500, "close": 19550, "volume": 2300},
+            {"time": 1692050400, "open": 19550, "high": 19500, "low": 19400, "close": 19450, "volume": 2400},
+            {"time": 1692054000, "open": 19450, "high": 19600, "low": 19400, "close": 19550, "volume": 2500},
+            {"time": 1692057600, "open": 19550, "high": 19700, "low": 19500, "close": 19650, "volume": 2600},
+            {"time": 1692061200, "open": 19650, "high": 19800, "low": 19600, "close": 19750, "volume": 2700},
+            {"time": 1692064800, "open": 19750, "high": 19900, "low": 19700, "close": 19850, "volume": 2800},
+            {"time": 1692068400, "open": 19850, "high": 20000, "low": 19800, "close": 19950, "volume": 2900}
+        ];
+
+        async function testHealth() {
+            const result = document.getElementById('health-result');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                result.innerHTML = `<span class="success">✅ Success!</span><br>Response: ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error:</span> ${error.message}`;
+            }
+        }
+
+        async function testStrategies() {
+            const result = document.getElementById('strategies-result');
+            try {
+                const response = await fetch(`${API_BASE}/strategies`);
+                const data = await response.json();
+                result.innerHTML = `<span class="success">✅ Success!</span><br>Available strategies: ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error:</span> ${error.message}`;
+            }
+        }
+
+        async function testSMA() {
+            const result = document.getElementById('sma-result');
+            try {
+                const response = await fetch(`${API_BASE}/indicators/sma`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: sampleData,
+                        period: 5
+                    })
+                });
+                const data = await response.json();
+                result.innerHTML = `<span class="success">✅ Success!</span><br>SMA values (last 5): ${JSON.stringify(data.values.slice(-5), null, 2)}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error:</span> ${error.message}`;
+            }
+        }
+
+        async function testBollingerBands() {
+            const result = document.getElementById('bb-result');
+            try {
+                const response = await fetch(`${API_BASE}/indicators/bollinger-bands`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: sampleData,
+                        period: 20
+                    })
+                });
+                const data = await response.json();
+                const lastIndex = data.upper.length - 1;
+                result.innerHTML = `<span class="success">✅ Success!</span><br>Latest BB: Upper=${data.upper[lastIndex]?.toFixed(2)}, Middle=${data.middle[lastIndex]?.toFixed(2)}, Lower=${data.lower[lastIndex]?.toFixed(2)}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error:</span> ${error.message}`;
+            }
+        }
+
+        async function testRSI() {
+            const result = document.getElementById('rsi-result');
+            try {
+                const response = await fetch(`${API_BASE}/indicators/rsi`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: sampleData,
+                        period: 14
+                    })
+                });
+                const data = await response.json();
+                result.innerHTML = `<span class="success">✅ Success!</span><br>RSI values (last 3): ${JSON.stringify(data.values.slice(-3).map(v => v.toFixed(2)), null, 2)}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error:</span> ${error.message}`;
+            }
+        }
+
+        // Auto-run health check on load
+        window.onload = () => {
+            testHealth();
+        };
+    </script>
+</body>
+</html>
