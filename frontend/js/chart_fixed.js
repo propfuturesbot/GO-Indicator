@@ -761,6 +761,10 @@ function updateRenkoBrickSize() {
 async function main() {
   console.log('=== Initializing Trading Platform ===');
   
+  // Set API URL dynamically
+  API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:8080/api`;
+  console.log('API Base URL:', API_BASE_URL);
+  
   if (typeof LightweightCharts === 'undefined') {
     console.error('LightweightCharts library not loaded!');
     return;
