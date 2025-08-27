@@ -1119,11 +1119,15 @@ async function main() {
         
         if (currentChartType === 'heikenashi') {
           heikenAshiData = calculateHeikenAshi(validData);
+        } else if (currentChartType === 'renko') {
+          renkoData = convertToRenko(validData, currentBrickSize, false);
         }
         
         let dataToDisplay = validData;
         if (currentChartType === 'heikenashi') {
           dataToDisplay = heikenAshiData;
+        } else if (currentChartType === 'renko') {
+          dataToDisplay = renkoData;
         }
         
         candleSeries.setData(dataToDisplay);
