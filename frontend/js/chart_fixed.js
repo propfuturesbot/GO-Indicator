@@ -619,6 +619,9 @@ async function changeResolution(resolution) {
         validData.sort((a, b) => a.time - b.time);
         historicalData = validData;
         
+        // Update global reference for indicators
+        window.historicalData = historicalData;
+        
         if (currentChartType === 'heikenashi') {
           heikenAshiData = calculateHeikenAshi(validData);
           console.log('Calculated Heiken Ashi data with', heikenAshiData.length, 'bars');
