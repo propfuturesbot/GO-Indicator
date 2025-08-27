@@ -804,6 +804,9 @@ async function main() {
   
   historicalData = await getHistoricalData(initialResolution, config.countback);
   
+  // Update global reference for indicators
+  window.historicalData = historicalData;
+  
   if (historicalData && historicalData.length > 0) {
     console.log(`Setting ${historicalData.length} initial bars on chart`);
     
