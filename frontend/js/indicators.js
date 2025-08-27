@@ -25,8 +25,8 @@ class IndicatorManager {
       return;
     }
 
-    if (!historicalData || historicalData.length === 0) {
-      alert('No data available to calculate indicators');
+    if (!window.historicalData || window.historicalData.length === 0) {
+      alert('No data available to calculate indicators. Please wait for data to load.');
       return;
     }
 
