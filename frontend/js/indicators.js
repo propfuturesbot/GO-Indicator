@@ -34,7 +34,7 @@ class IndicatorManager {
       console.log(`Adding indicator: ${type} with period: ${period}`);
       
       const requestData = {
-        data: historicalData,
+        data: window.historicalData,
         period: period,
         config: config
       };
