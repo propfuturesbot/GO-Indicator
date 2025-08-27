@@ -473,6 +473,10 @@ function handleRealTimeBar(bar) {
         
         updateIndicators(update);
       }
+    } else if (currentChartType === 'renko') {
+      // For Renko, always update indicators and signals with original data
+      updateIndicators(update);
+    }
     }
   } catch (chartError) {
     console.error('Error updating chart:', chartError);
