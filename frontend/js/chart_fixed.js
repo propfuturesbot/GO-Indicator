@@ -875,11 +875,17 @@ async function changeResolution(resolution) {
         if (currentChartType === 'heikenashi') {
           heikenAshiData = calculateHeikenAshi(validData);
           console.log('Calculated Heiken Ashi data with', heikenAshiData.length, 'bars');
+        } else if (currentChartType === 'renko') {
+          renkoData = convertToRenko(validData, currentBrickSize, false);
+          console.log('Calculated Renko data with', renkoData.length, 'bricks');
         }
         
+        // Determine which data to display
         let dataToDisplay = validData;
         if (currentChartType === 'heikenashi') {
           dataToDisplay = heikenAshiData;
+        } else if (currentChartType === 'renko') {
+          dataToDisplay = renkoData;
         }
         
         candleSeries.setData(dataToDisplay);
