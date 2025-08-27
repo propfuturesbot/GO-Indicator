@@ -194,9 +194,9 @@ class IndicatorManager {
     }
 
     const indicatorData = values.map((value, index) => {
-      const dataIndex = index + (historicalData.length - values.length);
+      const dataIndex = index + (window.historicalData.length - values.length);
       return {
-        time: historicalData[dataIndex]?.time,
+        time: window.historicalData[dataIndex]?.time,
         value: value
       };
     }).filter(item => item.time && !isNaN(item.value));
