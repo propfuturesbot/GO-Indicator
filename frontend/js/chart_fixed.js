@@ -840,6 +840,9 @@ async function main() {
         validData.sort((a, b) => a.time - b.time);
         historicalData = validData;
         
+        // Update global reference for indicators
+        window.historicalData = historicalData;
+        
         if (currentChartType === 'heikenashi') {
           heikenAshiData = calculateHeikenAshi(validData);
         }
