@@ -1181,14 +1181,24 @@ async function main() {
 }
 
 // Make functions available globally
-window.addIndicator = addIndicator;
+// Note: addIndicator is defined in indicators.js, so we'll assign it after DOM load
 window.changeResolution = changeResolution;
 window.changeChartType = changeChartType;
 window.updateRenkoBrickSize = updateRenkoBrickSize;
 
 // Start the application when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', main);
+  document.addEventListener('DOMContentLoaded', () => {
+    // Assign addIndicator after DOM is loaded (from indicators.js)
+    if (typeof addIndicator !== 'undefined') {
+      window.addIndicator = addIndicator;
+    }
+    main();
+  });
 } else {
+  // Assign addIndicator if available
+  if (typeof addIndicator !== 'undefined') {
+    window.addIndicator = addIndicator;
+  }
   main();
 }
