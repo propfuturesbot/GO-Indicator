@@ -249,15 +249,15 @@ class IndicatorManager {
 
   // Update all indicators when new data arrives
   async updateIndicators(newBarData) {
-    if (this.activeIndicators.size === 0 || !historicalData) return;
+    if (this.activeIndicators.size === 0 || !window.historicalData) return;
     
     // Update historical data with the new bar
     if (newBarData) {
-      const existingIndex = historicalData.findIndex(bar => bar.time === newBarData.time);
+      const existingIndex = window.historicalData.findIndex(bar => bar.time === newBarData.time);
       if (existingIndex !== -1) {
-        historicalData[existingIndex] = newBarData;
+        window.historicalData[existingIndex] = newBarData;
       } else {
-        historicalData.push(newBarData);
+        window.historicalData.push(newBarData);
       }
     }
     
