@@ -397,8 +397,9 @@ function handleRealTimeBar(bar) {
       handleTickChartUpdate(update, bar);
     } else {
       let displayUpdate = update;
+      let isNewRenkoBrick = false;
       
-      if (currentChartType === 'heikenashi' && historicalData.length > 0) {
+      if (currentChartType === 'heikenashi' && window.historicalData.length > 0) {
         const lastHACandle = heikenAshiData.length > 0 ? 
           heikenAshiData[heikenAshiData.length - 1] : null;
         
@@ -417,9 +418,39 @@ function handleRealTimeBar(bar) {
           close: haClose,
           volume: update.volume
         };
+      } else if (currentChartType === 'renko') {
+        // Handle Renko brick updates
+        try {
+          const newBricks = updateRenkoWithNewBar(update, currentBrickSize);
+          
+          if (newBricks.length > 0) {
+            // New Renko bricks were created
+            isNewRenkoBrick = true;
+            
+            // Add new bricks to the chart
+            newBricks.forEach(brick => {
+              try {
+                candleSeries.update(brick);
+                renkoData.push(brick);
+              } catch (brickError) {
+                console.error('Error updating individual Renko brick:', brickError, brick);
+              }
+            });
+            
+            console.log(`Added ${newBricks.length} new Renko brick(s)`);
+          }
+          
+          // Don't update with regular displayUpdate for Renko
+          displayUpdate = null;
+        } catch (renkoError) {
+          console.error('Error processing Renko update:', renkoError);
+          // Fall back to not updating for this tick
+          displayUpdate = null;
+        }
       }
       
-      if (!lastBarTime || barTime > lastBarTime) {
+      // Only process regular candlestick/HA updates if not Renko or if no new Renko brick was created
+      if (displayUpdate && !isNewRenkoBrick) {
         candleSeries.update(displayUpdate);
         
         if (bar.isClosed) {
