@@ -265,7 +265,7 @@ class IndicatorManager {
     for (const [type, config] of this.activeIndicators) {
       try {
         const requestData = {
-          data: historicalData,
+          data: window.historicalData,
           period: config.period,
           config: config.config
         };
