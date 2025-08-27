@@ -22,6 +22,9 @@ let renkoState = {
   lastTimestamp: null
 };
 
+// Make historicalData globally accessible for indicators
+window.historicalData = historicalData;
+
 // Indicator variables
 let activeIndicators = new Map();
 let indicatorSeries = new Map();
