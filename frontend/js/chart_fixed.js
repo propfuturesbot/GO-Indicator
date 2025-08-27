@@ -933,30 +933,48 @@ function changeChartType(chartType) {
 }
 
 function updateChartData() {
-  if (!candleSeries || !historicalData || historicalData.length === 0) {
+  if (!candleSeries || !window.historicalData || window.historicalData.length === 0) {
     console.warn('Cannot update chart: missing data or chart series');
     return;
   }
   
   try {
-    let dataToDisplay = historicalData;
+    let dataToDisplay = window.historicalData;
     
     if (currentChartType === 'heikenashi') {
-      heikenAshiData = calculateHeikenAshi(historicalData);
+      // Calculate Heiken Ashi data
+      heikenAshiData = calculateHeikenAshi(window.historicalData);
       dataToDisplay = heikenAshiData;
       console.log('Displaying Heiken Ashi data with', dataToDisplay.length, 'bars');
+    } else if (currentChartType === 'renko') {
+      // Calculate Renko data
+      renkoData = convertToRenko(window.historicalData, currentBrickSize, false);
+      dataToDisplay = renkoData;
+      console.log('Displaying Renko data with', dataToDisplay.length, 'bricks');
+      
+      // Validate Renko data
+      if (dataToDisplay.length === 0) {
+        console.warn('No Renko bricks generated. Check brick size and data.');
+        updateStatus('No Renko bricks generated', false);
+        return;
+      }
     } else {
       console.log('Displaying Candlestick data with', dataToDisplay.length, 'bars');
     }
     
+    // Validate data before setting
     if (!dataToDisplay || dataToDisplay.length === 0) {
       console.warn('No data to display on chart');
       return;
     }
     
+    // Update the chart with the appropriate data
     candleSeries.setData(dataToDisplay);
+    
+    // Fit content to show all data
     chart.timeScale().fitContent();
     
+    // For tick charts, set visible range
     if (currentResolution.endsWith('T') && dataToDisplay.length > 10) {
       const lastTime = dataToDisplay[dataToDisplay.length - 1].time;
       const firstTime = dataToDisplay[Math.max(0, dataToDisplay.length - 100)].time;
