@@ -108,7 +108,7 @@ class IndicatorManager {
 
   // Display indicator on the chart
   displayIndicator(type, data, period) {
-    if (!chart || !historicalData) return;
+    if (!chart || !window.historicalData) return;
     
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'];
     const colorIndex = this.indicatorSeries.size % colors.length;
