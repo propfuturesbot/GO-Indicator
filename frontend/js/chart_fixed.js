@@ -569,6 +569,256 @@ function calculateHeikenAshi(data) {
   return haData;
 }
 
+// ATR calculation for Renko
+function calculateATR(data, period = 14) {
+  if (!data || data.length < period) return 50; // Default to 50 if can't calculate
+  
+  const trueRanges = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const current = data[i];
+    const previous = data[i - 1];
+    
+    const highLow = current.high - current.low;
+    const highClose = Math.abs(current.high - previous.close);
+    const lowClose = Math.abs(current.low - previous.close);
+    
+    const trueRange = Math.max(highLow, Math.max(highClose, lowClose));
+    trueRanges.push(trueRange);
+  }
+  
+  // Calculate Simple Moving Average of True Range
+  if (trueRanges.length < period) return 50;
+  
+  let sum = 0;
+  for (let i = trueRanges.length - period; i < trueRanges.length; i++) {
+    sum += trueRanges[i];
+  }
+  
+  return sum / period;
+}
+
+// Renko brick calculation functions
+function convertToRenko(data, brickSize = null, useATR = true) {
+  if (!data || data.length === 0) return [];
+  
+  // Calculate brick size using ATR if not provided
+  if (brickSize === null || useATR) {
+    const atrValue = calculateATR(data);
+    brickSize = Math.max(1, Math.round(atrValue * 0.5));
+    console.log('Calculated ATR brick size:', brickSize);
+  }
+  
+  // Ensure brick size is valid
+  if (!brickSize || brickSize <= 0 || isNaN(brickSize)) {
+    brickSize = 10; // Default fallback
+  }
+  
+  const renkoBricks = [];
+  let brickIndex = 0; // Counter for unique timestamps
+  
+  // Initialize with first candle
+  const firstPrice = data[0].close;
+  const firstTime = data[0].time;
+  
+  let lastBrickHigh = firstPrice;
+  let lastBrickLow = firstPrice;
+  let direction = 1; // 1 for up, -1 for down
+  
+  for (let i = 1; i < data.length; i++) {
+    const price = data[i].close;
+    const baseTime = data[i].time;
+    
+    // Validate price data
+    if (!price || isNaN(price)) continue;
+    
+    // Check for upward movement
+    while (price >= lastBrickHigh + brickSize) {
+      // Create green (up) brick
+      const brickOpen = lastBrickHigh;
+      const brickClose = lastBrickHigh + brickSize;
+      
+      // Ensure unique timestamp by adding brick index
+      const brickTime = baseTime + brickIndex;
+      brickIndex++;
+      
+      renkoBricks.push({
+        time: brickTime,
+        open: parseFloat(brickOpen.toFixed(2)),
+        high: parseFloat(brickClose.toFixed(2)),
+        low: parseFloat(brickOpen.toFixed(2)),
+        close: parseFloat(brickClose.toFixed(2)),
+        volume: data[i].volume || 0,
+        color: 'green',
+        direction: 1
+      });
+      
+      lastBrickHigh = brickClose;
+      lastBrickLow = brickOpen;
+      direction = 1;
+    }
+    
+    // Check for downward movement
+    while (price <= lastBrickLow - brickSize) {
+      // Create red (down) brick
+      const brickOpen = lastBrickLow;
+      const brickClose = lastBrickLow - brickSize;
+      
+      // Ensure unique timestamp by adding brick index
+      const brickTime = baseTime + brickIndex;
+      brickIndex++;
+      
+      renkoBricks.push({
+        time: brickTime,
+        open: parseFloat(brickOpen.toFixed(2)),
+        high: parseFloat(brickOpen.toFixed(2)),
+        low: parseFloat(brickClose.toFixed(2)),
+        close: parseFloat(brickClose.toFixed(2)),
+        volume: data[i].volume || 0,
+        color: 'red',
+        direction: -1
+      });
+      
+      lastBrickLow = brickClose;
+      lastBrickHigh = brickOpen;
+      direction = -1;
+    }
+  }
+  
+  // Validate and clean up the bricks
+  const validBricks = renkoBricks.filter(brick => {
+    return brick &&
+           typeof brick.time === 'number' &&
+           typeof brick.open === 'number' &&
+           typeof brick.high === 'number' &&
+           typeof brick.low === 'number' &&
+           typeof brick.close === 'number' &&
+           !isNaN(brick.time) &&
+           !isNaN(brick.open) &&
+           !isNaN(brick.high) &&
+           !isNaN(brick.low) &&
+           !isNaN(brick.close) &&
+           brick.time > 0 &&
+           brick.high >= brick.low &&
+           (brick.direction === 1 ? (brick.high === brick.close && brick.low === brick.open) : 
+                                   (brick.low === brick.close && brick.high === brick.open));
+  });
+  
+  // Ensure timestamps are sequential and unique
+  if (validBricks.length > 1) {
+    for (let i = 1; i < validBricks.length; i++) {
+      if (validBricks[i].time <= validBricks[i-1].time) {
+        validBricks[i].time = validBricks[i-1].time + 1;
+      }
+    }
+  }
+  
+  // Update global Renko state
+  if (validBricks.length > 0) {
+    const lastBrick = validBricks[validBricks.length - 1];
+    renkoState.lastBrickHigh = lastBrick.direction === 1 ? lastBrick.close : lastBrick.open;
+    renkoState.lastBrickLow = lastBrick.direction === -1 ? lastBrick.close : lastBrick.open;
+    renkoState.direction = lastBrick.direction;
+    renkoState.lastTimestamp = lastBrick.time;
+  }
+  
+  console.log(`Generated ${validBricks.length} valid Renko bricks with size ${brickSize}`);
+  return validBricks;
+}
+
+function updateRenkoWithNewBar(newBar, brickSize) {
+  if (!newBar || !renkoState.lastBrickHigh || !renkoState.lastBrickLow || !brickSize || brickSize <= 0) {
+    return [];
+  }
+  
+  const price = newBar.close;
+  const baseTime = newBar.time;
+  const newBricks = [];
+  
+  // Validate price
+  if (!price || isNaN(price)) return [];
+  
+  let lastBrickHigh = renkoState.lastBrickHigh;
+  let lastBrickLow = renkoState.lastBrickLow;
+  
+  // Start timestamp calculation from the last known timestamp
+  let nextTimestamp = renkoState.lastTimestamp ? Math.max(renkoState.lastTimestamp + 1, baseTime) : baseTime;
+  
+  // Check for upward movement
+  while (price >= lastBrickHigh + brickSize) {
+    // Create green (up) brick
+    const brickOpen = lastBrickHigh;
+    const brickClose = lastBrickHigh + brickSize;
+    
+    newBricks.push({
+      time: nextTimestamp,
+      open: parseFloat(brickOpen.toFixed(2)),
+      high: parseFloat(brickClose.toFixed(2)),
+      low: parseFloat(brickOpen.toFixed(2)),
+      close: parseFloat(brickClose.toFixed(2)),
+      volume: newBar.volume || 0,
+      color: 'green',
+      direction: 1
+    });
+    
+    lastBrickHigh = brickClose;
+    lastBrickLow = brickOpen;
+    renkoState.direction = 1;
+    nextTimestamp++; // Ensure next brick has a later timestamp
+  }
+  
+  // Check for downward movement
+  while (price <= lastBrickLow - brickSize) {
+    // Create red (down) brick
+    const brickOpen = lastBrickLow;
+    const brickClose = lastBrickLow - brickSize;
+    
+    newBricks.push({
+      time: nextTimestamp,
+      open: parseFloat(brickOpen.toFixed(2)),
+      high: parseFloat(brickOpen.toFixed(2)),
+      low: parseFloat(brickClose.toFixed(2)),
+      close: parseFloat(brickClose.toFixed(2)),
+      volume: newBar.volume || 0,
+      color: 'red',
+      direction: -1
+    });
+    
+    lastBrickLow = brickClose;
+    lastBrickHigh = brickOpen;
+    renkoState.direction = -1;
+    nextTimestamp++; // Ensure next brick has a later timestamp
+  }
+  
+  // Update global state
+  renkoState.lastBrickHigh = lastBrickHigh;
+  renkoState.lastBrickLow = lastBrickLow;
+  
+  // Update last timestamp if we created new bricks
+  if (newBricks.length > 0) {
+    renkoState.lastTimestamp = newBricks[newBricks.length - 1].time;
+  }
+  
+  // Validate bricks before returning
+  const validBricks = newBricks.filter(brick => {
+    return brick &&
+           typeof brick.time === 'number' &&
+           !isNaN(brick.time) &&
+           typeof brick.open === 'number' &&
+           !isNaN(brick.open) &&
+           typeof brick.high === 'number' &&
+           !isNaN(brick.high) &&
+           typeof brick.low === 'number' &&
+           !isNaN(brick.low) &&
+           typeof brick.close === 'number' &&
+           !isNaN(brick.close) &&
+           brick.high >= brick.low;
+  });
+  
+  console.log(`Real-time: Generated ${validBricks.length} new Renko bricks, last timestamp: ${renkoState.lastTimestamp}`);
+  return validBricks;
+}
+
 async function changeResolution(resolution) {
   console.log(`=== Changing resolution to "${resolution}" ===`);
   currentResolution = resolution;
