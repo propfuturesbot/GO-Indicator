@@ -3,7 +3,6 @@ package main
 import (
         "fmt"
         "math"
-        "sort"
         "time"
 
         "github.com/cinar/indicator/v2/asset"
