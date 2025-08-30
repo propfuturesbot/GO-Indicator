@@ -911,7 +911,9 @@ func handleBacktest(w http.ResponseWriter, r *http.Request) {
 	case "buy_and_hold":
 		strat = strategy.NewBuyAndHoldStrategy()
 	case "rsi":
-		strat = momentum.NewRsiStrategy()
+		// RSI strategy not available in basic momentum package
+		http.Error(w, "RSI strategy not implemented in this version", http.StatusNotImplemented)
+		return
 	default:
 		http.Error(w, "Unsupported strategy: "+req.Strategy, http.StatusBadRequest)
 		return
