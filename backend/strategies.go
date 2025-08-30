@@ -122,26 +122,24 @@ func (d *DonchianBreakoutStrategy) Name() string {
 }
 
 func (d *DonchianBreakoutStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan strategy.Action {
-	snapshotsSplit := helper.Duplicate(snapshots, 2)
+	snapshotsSplit := helper.Duplicate(snapshots, 3)
 	highs := asset.SnapshotsAsHighs(snapshotsSplit[0])
 	lows := asset.SnapshotsAsLows(snapshotsSplit[1])
+	closes := asset.SnapshotsAsClosings(snapshotsSplit[2])
 	
-	highs = helper.Duplicate(highs, 2)
-	
-	upper, middle, lower := d.dc.Compute(highs[0])
+	upper, middle, lower := d.dc.Compute(highs)
 	go helper.Drain(middle) // Don't need middle channel
 	
-	highs[1] = helper.Skip(highs[1], d.dc.IdlePeriod())
-	lows = helper.Skip(lows, d.dc.IdlePeriod())
+	closes = helper.Skip(closes, d.dc.IdlePeriod())
 	
-	actions := helper.Operate3(upper, lower, highs[1], func(upperBound, lowerBound, high float64) strategy.Action {
+	actions := helper.Operate3(upper, lower, closes, func(upperBound, lowerBound, close float64) strategy.Action {
 		// Buy on breakout above upper channel
-		if high > upperBound {
+		if close > upperBound {
 			return strategy.Buy
 		}
 		
 		// Sell on breakdown below lower channel  
-		if high < lowerBound {
+		if close < lowerBound {
 			return strategy.Sell
 		}
 		
