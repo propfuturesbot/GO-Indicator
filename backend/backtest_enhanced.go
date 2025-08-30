@@ -130,7 +130,7 @@ func RunEnhancedBacktest(data []OHLCV, config BacktestConfig) (*DetailedBacktest
 
         // Collect results
         actions := helper.ChanToSlice(actionChan)
-        outcomes := helper.ChanToSlice(outcomeChan)
+        _ = helper.ChanToSlice(outcomeChan) // outcomes not used in this implementation
 
         // Convert actions to integers
         actionInts := make([]int, len(actions))
