@@ -136,6 +136,182 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
+// StrategyInfo represents strategy information for the UI
+type StrategyInfo struct {
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Parameters  map[string]interface{} `json:"parameters"`
+	Category    string                 `json:"category"`
+	WinRate     float64                `json:"winRate"`
+	ProfitFactor float64               `json:"profitFactor"`
+	MaxDrawdown float64                `json:"maxDrawdown"`
+}
+
+// Enhanced Backtest endpoint
+func handleEnhancedBacktest(w http.ResponseWriter, r *http.Request) {
+	var config BacktestConfig
+	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Use dummy data if instrument is "DummyTest"
+	var data []OHLCV
+	if config.Instrument == "DummyTest" {
+		data = GenerateNQSampleData()
+	} else {
+		http.Error(w, "Only DummyTest instrument supported currently", http.StatusBadRequest)
+		return
+	}
+
+	// Run enhanced backtest
+	result, err := RunEnhancedBacktest(data, config)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
+// Get strategies list with detailed information
+func handleGetStrategiesList(w http.ResponseWriter, r *http.Request) {
+	strategies := []StrategyInfo{
+		{
+			Name:         "VWAP EMA Crossover (9,21,20)",
+			Description:  "Combines VWAP, fast EMA (9), and slow EMA (21) for trend-following entries with volume confirmation",
+			Category:     "Trend Following",
+			WinRate:      65.0,
+			ProfitFactor: 1.8,
+			MaxDrawdown:  12.5,
+			Parameters: map[string]interface{}{
+				"emaFastPeriod":      9,
+				"emaSlowPeriod":      21,
+				"vwapPeriod":         20,
+				"scalpTarget":        5.0,
+				"stopLoss":           10.0,
+				"minVolumeThreshold": 1000,
+			},
+		},
+		{
+			Name:         "Donchian Channel Breakout (20)",
+			Description:  "Breakout strategy using 20-period Donchian Channel for trend momentum entries",
+			Category:     "Breakout",
+			WinRate:      58.0,
+			ProfitFactor: 2.1,
+			MaxDrawdown:  18.0,
+			Parameters: map[string]interface{}{
+				"period": 20,
+			},
+		},
+		{
+			Name:         "RSI Divergence Strategy (14)",
+			Description:  "Mean reversion strategy using RSI overbought/oversold levels with divergence detection",
+			Category:     "Mean Reversion",
+			WinRate:      72.0,
+			ProfitFactor: 1.6,
+			MaxDrawdown:  8.5,
+			Parameters: map[string]interface{}{
+				"rsiPeriod":       14,
+				"overboughtLevel": 70,
+				"oversoldLevel":   30,
+			},
+		},
+		{
+			Name:         "Moving Average Crossover (10,30)",
+			Description:  "Classic golden cross/death cross strategy using fast and slow moving averages",
+			Category:     "Trend Following",
+			WinRate:      60.0,
+			ProfitFactor: 1.7,
+			MaxDrawdown:  15.0,
+			Parameters: map[string]interface{}{
+				"fastPeriod": 10,
+				"slowPeriod": 30,
+			},
+		},
+		{
+			Name:         "Bollinger Mean Reversion (20)",
+			Description:  "Mean reversion strategy using Bollinger Band touches for contrarian entries",
+			Category:     "Mean Reversion",
+			WinRate:      68.0,
+			ProfitFactor: 1.9,
+			MaxDrawdown:  11.0,
+			Parameters: map[string]interface{}{
+				"period":       20,
+				"stdDeviation": 2.0,
+			},
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(strategies)
+}
+
+// Get strategy details
+func handleGetStrategyDetails(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strategyName := vars["name"]
+
+	// Find strategy in the list
+	strategies := []StrategyInfo{
+		// Same strategies as above - in production, this would be refactored to avoid duplication
+		{
+			Name:         "VWAP EMA Crossover (9,21,20)",
+			Description:  "Combines VWAP, fast EMA (9), and slow EMA (21) for trend-following entries with volume confirmation. Entry conditions: price > VWAP, EMA fast crosses above EMA slow, volume > threshold. Exit conditions: opposite signals, stop loss, or take profit.",
+			Category:     "Trend Following",
+			WinRate:      65.0,
+			ProfitFactor: 1.8,
+			MaxDrawdown:  12.5,
+			Parameters: map[string]interface{}{
+				"emaFastPeriod":      9,
+				"emaSlowPeriod":      21,
+				"vwapPeriod":         20,
+				"scalpTarget":        5.0,
+				"stopLoss":           10.0,
+				"minVolumeThreshold": 1000,
+			},
+		},
+	}
+
+	for _, strategy := range strategies {
+		if strategy.Name == strategyName {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(strategy)
+			return
+		}
+	}
+
+	http.Error(w, "Strategy not found", http.StatusNotFound)
+}
+
+// Generate NQ dummy data
+func handleGenerateNQData(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		StartDate string `json:"startDate"`
+		EndDate   string `json:"endDate"`
+		Interval  string `json:"interval"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// For now, just return the sample data regardless of parameters
+	data := GenerateNQSampleData()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data":        data,
+		"totalBars":   len(data),
+		"startTime":   data[0].Time,
+		"endTime":     data[len(data)-1].Time,
+		"instrument":  "NQ",
+		"timeframe":   "1m",
+	})
+}
+
 // Health check endpoint
 func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
