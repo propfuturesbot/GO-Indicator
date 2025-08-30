@@ -46,7 +46,7 @@ class BacktestingPlatform {
     async loadStrategies() {
         try {
             console.log('Loading strategies...');
-            const response = await fetch(`${this.apiBaseUrl}/strategies/list`);
+            const response = await fetch(`${this.apiBaseUrl}/strategies`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
