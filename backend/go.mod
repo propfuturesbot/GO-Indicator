@@ -1,6 +1,8 @@
 module trading-platform-api
 
-go 1.19
+go 1.22
+
+toolchain go1.22.5
 
 require (
 	github.com/cinar/indicator/v2 v2.0.0
