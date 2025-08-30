@@ -551,7 +551,7 @@ func handleCCI(w http.ResponseWriter, r *http.Request) {
 		period = 20
 	}
 	
-	_, highs, _, closes, _ := dataToChannels(req.Data)
+	_, highs, lows, closes, _ := dataToChannels(req.Data)
 	
 	cci := trend.NewCciWithPeriod[float64](period)
 	result := cci.Compute(highs, lows, closes)
