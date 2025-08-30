@@ -623,7 +623,7 @@ func handleWilliamsR(w http.ResponseWriter, r *http.Request) {
 	
 	_, highs, lows, closes, _ := dataToChannels(req.Data)
 	
-	williams := momentum.NewWilliamsRWithPeriod[float64](period)
+	williams := momentum.NewWilliamsR[float64]()
 	result := williams.Compute(highs, lows, closes)
 	values := helper.ChanToSlice(result)
 	
