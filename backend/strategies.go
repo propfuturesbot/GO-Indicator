@@ -59,15 +59,16 @@ func (v *VWAPEMAStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan strat
 	emaSlow := v.emaSlow.Compute(closingsSplit[1])
 	vwapValues := v.vwap.Compute(closingsSplit[2], volumesSplit[0])
 	
-	actions := helper.Operate4(emaFast, emaSlow, vwapValues, volumesSplit[1], 
-		func(fast, slow, vwap, volume float64) strategy.Action {
-			// Long conditions: price > VWAP, EMA fast crosses above EMA slow, volume > threshold
-			if fast > slow && fast > vwap && volume > v.MinVolumeThreshold {
+	actions := helper.Operate3(emaFast, emaSlow, vwapValues,
+		func(fast, slow, vwap float64) strategy.Action {
+			// Simplified logic without volume check for now
+			// Long conditions: EMA fast above EMA slow and price above VWAP
+			if fast > slow && fast > vwap {
 				return strategy.Buy
 			}
 			
-			// Short conditions: price < VWAP, EMA fast crosses below EMA slow, volume > threshold
-			if fast < slow && fast < vwap && volume > v.MinVolumeThreshold {
+			// Short conditions: EMA fast below EMA slow and price below VWAP
+			if fast < slow && fast < vwap {
 				return strategy.Sell
 			}
 			
