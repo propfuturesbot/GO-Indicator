@@ -111,7 +111,13 @@ func main() {
 	
 	// Strategy and backtesting
 	api.HandleFunc("/backtest", handleBacktest).Methods("POST")
+	api.HandleFunc("/backtest/enhanced", handleEnhancedBacktest).Methods("POST")
 	api.HandleFunc("/strategies", handleGetStrategies).Methods("GET")
+	api.HandleFunc("/strategies/list", handleGetStrategiesList).Methods("GET")
+	api.HandleFunc("/strategies/details/{name}", handleGetStrategyDetails).Methods("GET")
+	
+	// Data generation
+	api.HandleFunc("/data/nq-dummy", handleGenerateNQData).Methods("POST")
 	
 	// Health check
 	api.HandleFunc("/health", handleHealth).Methods("GET")
