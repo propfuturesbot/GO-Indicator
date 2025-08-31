@@ -295,6 +295,13 @@ class BacktestingPlatform {
         if (loadingState) {
             loadingState.style.display = 'none';
         }
+        
+        // Re-enable the run button
+        const runButton = document.getElementById('run-backtest-btn');
+        if (runButton) {
+            runButton.disabled = false;
+            runButton.textContent = 'Run Backtest';
+        }
     }
     
     displayResults() {
