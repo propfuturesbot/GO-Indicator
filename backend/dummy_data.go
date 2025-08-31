@@ -201,21 +201,23 @@ func isHolidayPeriod(date time.Time) bool {
 	return false
 }
 
-// GenerateNQSampleData generates 2 months of 1-minute NQ data
+// GenerateNQSampleData generates sample NQ data for testing
 func GenerateNQSampleData() []OHLCV {
 	generator := NewNQDataGenerator()
 	
-	// Generate 2 months of data
+	// Generate just 1 week of hourly data for testing
 	endDate := time.Now()
-	startDate := endDate.AddDate(0, -2, 0) // 2 months ago
+	startDate := endDate.AddDate(0, 0, -7) // 1 week ago
 	
-	// Generate 1-minute bars
-	interval := time.Minute
+	// Generate hourly bars (much less data)
+	interval := time.Hour
 	
 	data := generator.GenerateData(startDate, endDate, interval)
 	
-	// Add some realistic price trends and patterns
-	addRealisticPatterns(data)
+	// Limit to 200 bars maximum for testing
+	if len(data) > 200 {
+		data = data[:200]
+	}
 	
 	return data
 }
