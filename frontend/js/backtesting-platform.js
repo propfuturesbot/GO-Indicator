@@ -272,11 +272,21 @@ class BacktestingPlatform {
             loadingState.innerHTML = `
                 <div class="loading-spinner"></div>
                 <div class="loading-text">${message}</div>
+                <div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                    This may take up to 30 seconds for complex strategies...
+                </div>
             `;
             document.querySelector('.results-container').appendChild(loadingState);
         } else {
             loadingState.querySelector('.loading-text').textContent = message;
             loadingState.style.display = 'flex';
+        }
+        
+        // Disable the run button while processing
+        const runButton = document.getElementById('run-backtest-btn');
+        if (runButton) {
+            runButton.disabled = true;
+            runButton.textContent = 'Running...';
         }
     }
     
