@@ -332,7 +332,7 @@ class TradingPlatformTester:
 def main():
     """Main test execution"""
     print("Technical Trading Platform - Backend API Test")
-    print("Testing Go API server on localhost:8080")
+    print("Testing Go API server on localhost:8001")
     print()
     
     tester = TradingPlatformTester()
