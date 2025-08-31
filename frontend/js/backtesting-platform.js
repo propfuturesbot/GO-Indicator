@@ -543,6 +543,12 @@ class BacktestingPlatform {
     }
 }
 
+// Navigation function
+function switchToLiveTrading() {
+    // Redirect to the original trading platform
+    window.location.href = '/chart.html'; // Assuming there's a chart.html for live trading
+}
+
 // Global functions for UI interactions
 function switchTab(tabName) {
     // Update tab buttons
