@@ -46,25 +46,14 @@ class BacktestingPlatform {
     async loadStrategies() {
         try {
             console.log('Loading strategies...');
-            const response = await fetch(`${this.apiBaseUrl}/strategies`);
+            const response = await fetch(`${this.apiBaseUrl}/strategies/list`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const strategyNames = await response.json();
-            console.log('Loaded strategy names:', strategyNames);
-            
-            // Convert simple names to strategy objects for compatibility
-            this.strategies = strategyNames.map(name => ({
-                name: name,
-                description: `${name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} trading strategy`,
-                category: 'Trading Strategy',
-                winRate: 65.0,
-                profitFactor: 1.5,
-                maxDrawdown: 10.0,
-                parameters: {}
-            }));
+            this.strategies = await response.json();
+            console.log('Loaded strategies:', this.strategies);
             
             this.renderStrategies();
             this.populateStrategySelect();
