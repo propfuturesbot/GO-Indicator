@@ -145,15 +145,7 @@ type StrategyInfo struct {
 	MaxDrawdown float64                `json:"maxDrawdown"`
 }
 
-// BacktestConfig represents configuration for backtesting
-type BacktestConfig struct {
-	Instrument     string  `json:"instrument"`
-	Strategy       string  `json:"strategy"`
-	InitialCapital float64 `json:"initialCapital"`
-	PositionSize   float64 `json:"positionSize"`
-	StopLoss       float64 `json:"stopLoss"`
-	TakeProfit     float64 `json:"takeProfit"`
-}
+
 
 // Enhanced Backtest endpoint
 func handleEnhancedBacktest(w http.ResponseWriter, r *http.Request) {
