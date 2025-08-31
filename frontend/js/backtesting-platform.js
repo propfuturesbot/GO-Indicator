@@ -421,9 +421,9 @@ class BacktestingPlatform {
         });
         
         // Convert equity curve data
-        const equityData = this.currentResults.equityCurve.map((point, index) => ({
+        const equityData = (this.currentResults.equityCurve || []).map((point, index) => ({
             time: index + 1, // Simple index-based time
-            value: point.equity
+            value: point.equity || 0
         }));
         
         lineSeries.setData(equityData);
