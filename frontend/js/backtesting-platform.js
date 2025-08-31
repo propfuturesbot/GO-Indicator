@@ -545,8 +545,8 @@ class BacktestingPlatform {
 
 // Navigation function
 function switchToLiveTrading() {
-    // Redirect to the original trading platform
-    window.location.href = '/chart.html'; // Assuming there's a chart.html for live trading
+    // Redirect to the live trading platform
+    window.location.href = '/test_platform.html';
 }
 
 // Global functions for UI interactions
