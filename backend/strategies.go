@@ -121,10 +121,9 @@ func (d *DonchianBreakoutStrategy) Name() string {
 }
 
 func (d *DonchianBreakoutStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan strategy.Action {
-	snapshotsSplit := helper.Duplicate(snapshots, 3)
+	snapshotsSplit := helper.Duplicate(snapshots, 2)
 	highs := asset.SnapshotsAsHighs(snapshotsSplit[0])
-	lows := asset.SnapshotsAsLows(snapshotsSplit[1])
-	closes := asset.SnapshotsAsClosings(snapshotsSplit[2])
+	closes := asset.SnapshotsAsClosings(snapshotsSplit[1])
 	
 	upper, middle, lower := d.dc.Compute(highs)
 	go helper.Drain(middle) // Don't need middle channel
