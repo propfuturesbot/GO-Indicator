@@ -690,7 +690,7 @@ func handleDonchianChannel(w http.ResponseWriter, r *http.Request) {
 		period = 20
 	}
 	
-	_, highs, lows, _, _ := dataToChannels(req.Data)
+	_, highs, _, _, _ := dataToChannels(req.Data)
 	
 	dc := volatility.NewDonchianChannelWithPeriod[float64](period)
 	upper, middle, lower := dc.Compute(highs)
