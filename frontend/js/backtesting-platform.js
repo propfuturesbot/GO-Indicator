@@ -307,50 +307,55 @@ class BacktestingPlatform {
         const grid = document.getElementById('summary-grid');
         if (!grid || !this.currentResults) return;
         
-        const summary = this.currentResults.summary;
+        const summary = this.currentResults.summary || {};
+        
+        // Helper function to safely get numeric values
+        const safeNumber = (value, defaultVal = 0) => {
+            return (typeof value === 'number' && !isNaN(value)) ? value : defaultVal;
+        };
         
         const cards = [
             {
                 title: 'Total Return',
-                value: `${summary.totalReturnPercent.toFixed(2)}%`,
+                value: `${safeNumber(summary.totalReturn).toFixed(2)}%`,
                 icon: '📈',
-                color: summary.totalReturnPercent >= 0 ? '#10b981' : '#ef4444',
-                change: `$${summary.totalPnL.toFixed(2)} P&L`
+                color: safeNumber(summary.totalReturn) >= 0 ? '#10b981' : '#ef4444',
+                change: `${safeNumber(summary.totalTrades)} trades executed`
             },
             {
                 title: 'Win Rate',
-                value: `${summary.winRate.toFixed(1)}%`,
+                value: `${safeNumber(summary.winRate).toFixed(1)}%`,
                 icon: '🎯',
                 color: '#06d6a0',
-                change: `${summary.winningTrades}/${summary.totalTrades} trades`
+                change: `${safeNumber(summary.totalTrades)} total trades`
             },
             {
                 title: 'Profit Factor',
-                value: summary.profitFactor.toFixed(2),
+                value: safeNumber(summary.profitFactor).toFixed(2),
                 icon: '💰',
-                color: summary.profitFactor >= 1 ? '#10b981' : '#ef4444',
-                change: `Avg Win: $${summary.averageWin.toFixed(2)}`
+                color: safeNumber(summary.profitFactor) >= 1 ? '#10b981' : '#ef4444',
+                change: `Performance ratio`
             },
             {
                 title: 'Max Drawdown',
-                value: `${summary.maxDrawdown.toFixed(2)}%`,
+                value: `${safeNumber(summary.maxDrawdown).toFixed(2)}%`,
                 icon: '📉',
                 color: '#ef4444',
-                change: `${summary.maxDrawdownDuration} periods`
+                change: `Risk measurement`
             },
             {
-                title: 'Sharpe Ratio',
-                value: summary.sharpeRatio.toFixed(2),
+                title: 'Strategy',
+                value: this.selectedStrategy?.name?.split(' ')[0] || 'VWAP',
                 icon: '📊',
-                color: summary.sharpeRatio >= 1 ? '#10b981' : '#f59e0b',
-                change: `Sortino: ${summary.sortinoRatio.toFixed(2)}`
+                color: '#3b82f6',
+                change: `Active strategy`
             },
             {
                 title: 'Total Trades',
-                value: summary.totalTrades.toString(),
+                value: safeNumber(summary.totalTrades).toString(),
                 icon: '🔄',
-                color: '#3b82f6',
-                change: `Largest Win: $${summary.largestWin.toFixed(2)}`
+                color: '#06d6a0',
+                change: `Executed successfully`
             }
         ];
         
