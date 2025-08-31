@@ -519,9 +519,9 @@ class BacktestingPlatform {
         });
         
         // Convert drawdown data
-        const drawdownData = this.currentResults.drawdownCurve.map((point, index) => ({
+        const drawdownData = (this.currentResults.drawdownCurve || []).map((point, index) => ({
             time: index + 1,
-            value: -point.drawdown // Negative for visual representation
+            value: -(point.drawdown || 0) // Negative for visual representation
         }));
         
         lineSeries.setData(drawdownData);
