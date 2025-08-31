@@ -16,7 +16,6 @@ import (
 	"github.com/cinar/indicator/v2/volatility"
 	"github.com/cinar/indicator/v2/volume"
 	"github.com/cinar/indicator/v2/strategy"
-	""
 	"github.com/cinar/indicator/v2/asset"
 	
 	"github.com/rs/cors"
