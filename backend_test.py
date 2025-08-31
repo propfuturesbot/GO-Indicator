@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 class TradingPlatformTester:
-    def __init__(self, base_url="http://localhost:8080"):
+    def __init__(self, base_url="http://localhost:8001"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
