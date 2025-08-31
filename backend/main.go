@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	""
 	"time"
 
 	"github.com/cinar/indicator/v2/helper"
