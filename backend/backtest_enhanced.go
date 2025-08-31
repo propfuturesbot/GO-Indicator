@@ -1,12 +1,9 @@
 package main
 
 import (
-        "fmt"
         "math"
         "time"
 
-        "github.com/cinar/indicator/v2/asset"
-        "github.com/cinar/indicator/v2/helper"
         "github.com/cinar/indicator/v2/strategy"
 )
 
