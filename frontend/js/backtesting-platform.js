@@ -3,7 +3,7 @@
 
 class BacktestingPlatform {
     constructor() {
-        this.apiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8001/api`;
+        this.apiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8888/api`;
         this.strategies = [];
         this.selectedStrategy = null;
         this.currentResults = null;

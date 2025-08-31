@@ -130,8 +130,8 @@ func main() {
 	
 	handler := c.Handler(r)
 	
-	fmt.Println("🚀 Trading Platform API Server starting on :8001")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8001", handler))
+	fmt.Println("🚀 Trading Platform API Server starting on :8888")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8888", handler))
 }
 
 // StrategyInfo represents strategy information for the UI
